@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button, ScrollView } from 'react-native';
 
 export default function App() {
   const [login, setLogin] = useState('');
@@ -11,6 +11,8 @@ export default function App() {
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
   const [curso, setCurso] = useState('');
+
+  const [indiceEdicao, setIndiceEdicao] = useState(null);
 
   function validarLogin() {
     setMensagem('');
@@ -29,18 +31,30 @@ export default function App() {
   }
 
   function cadastrarAluno() {
-    const novoAluno = {
-      nome,
-      idade,
-      curso
-    };
-
+    const novoAluno = { nome, idade, curso };
     setAlunos([...alunos, novoAluno]);
-
-    // limpar campos
     setNome('');
     setIdade('');
     setCurso('');
+  }
+
+  function atualizarAluno() {
+    const novaLista = [...alunos];
+    novaLista[indiceEdicao] = { nome, idade, curso };
+    setAlunos(novaLista);
+    setIndiceEdicao(null);
+    setNome('');
+    setIdade('');
+    setCurso('');
+  }
+
+  // CORREÇÃO: era "aluno[index]", tem que ser "alunos[index]"
+  function editarAluno(index) {
+    const aluno = alunos[index];
+    setNome(aluno.nome);
+    setIdade(aluno.idade);
+    setCurso(aluno.curso);
+    setIndiceEdicao(index);
   }
 
   if (tela === 'mudar') {
@@ -72,16 +86,24 @@ export default function App() {
           onChangeText={setCurso}
         />
 
-        <Button style={styles.botao} title="Cadastrar Aluno" onPress={cadastrarAluno} />
-        
-        {alunos.map((aluno, index) => (
-          <View style={styles.info}>
+        {/* CORREÇÃO: ternário estava incompleto, faltava o else e as chaves {} */}
+        {indiceEdicao === null
+          ? <Button style={styles.botao} title="Cadastrar Aluno" onPress={cadastrarAluno} />
+          : <Button style={styles.botao} title="Atualizar Aluno" onPress={atualizarAluno} />
+        }
+
+        {/* CORREÇÃO: "ScrolView" -> "ScrollView" e importado no topo */}
+        <ScrollView style={styles.scroll}>
+          {alunos.map((aluno, index) => (
+            <View key={index} style={styles.info}>
               <Text>Aluno(a) cadastrado!</Text>
               <Text>Nome: {aluno.nome}</Text>
               <Text>Idade: {aluno.idade}</Text>
               <Text>Curso: {aluno.curso}</Text>
-          </View>
-        ) )}
+              <Button title="Editar" onPress={() => editarAluno(index)} />
+            </View>
+          ))}
+        </ScrollView>
 
         <Button style={styles.botao} title="Sair" onPress={voltarTela} />
       </View>
@@ -121,18 +143,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#438a65',
     flex: 1,
-    justifyContent: 'center',
+  },
+
+  scroll: {
+    width: '100%',
+    paddingHorizontal: 10,
   },
 
   info: {
     textAlign: 'center',
     margin: 10,
     padding: 10,
-    border: 5,
     borderRadius: 5,
     borderWidth: 3,
-    backgroundColor: "#0d0d0d",
-
+    backgroundColor: "#f5f0f0",
   },
 
   input: {
@@ -149,15 +173,15 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: '#054759',
     marginTop: 10,
-    marginBottom: 10
+    marginBottom: 10,
   },
 
   texto: {
     marginBottom: 10,
-    marginTop: 10
+    marginTop: 10,
   },
 
-  botao:{
+  botao: {
     margin: 5,
   },
 });
