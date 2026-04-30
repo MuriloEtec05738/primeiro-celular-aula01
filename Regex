@@ -1,0 +1,44 @@
+import { StyleSheet, Text, View, TextInput } from 'react-native';
+
+import React, {useState} from 'react';
+
+export default function App() {
+  const [cpf,setCpf] = useState('');
+
+  const mascaraCPF = (text) => {
+    let campo = text.replace(/\D/g, '');
+    campo = campo.replace(/(\d{3})(\d)/,  '$1.$2');
+    campo = campo.replace(/(\d{3})(\d)/,  '$1.$2');
+    campo = campo.replace(/(\d{3})(\d{2})/,  '$1-$2');
+    setCpf(campo);
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.paragraph}>
+        Regex
+      </Text>
+      <TextInput 
+      value={cpf} 
+      onChangeText={mascaraCPF}
+      maxLength={13}
+      />
+
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  paragraph: {
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+});
